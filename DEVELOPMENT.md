@@ -8,6 +8,7 @@ Welcome to the Skylite UX development guide! This document will help you set up 
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
 - [Development Workflow](#development-workflow)
+- [Integrations](#integrations)
 - [Testing](#testing)
 - [Building](#building)
 - [Troubleshooting](#troubleshooting)
@@ -125,6 +126,112 @@ Skylite-UX/
 - Use **Tailwind CSS** for styling
 - Follow **ESLint** and **Prettier** rules
 - Write meaningful commit messages
+
+## 🔗 Integrations
+
+Skylite UX is designed to integrate with various external and self-hosted services. This section covers how to set up and configure integrations for development.
+
+### Integration Development
+
+#### Adding New Features to Existing Self-Hosted Integrations
+
+1. **Spin up the Docker container** found in `Skylite-UX/.devcontainer/integrations/`
+
+2. **Generate an API key** for the service
+
+3. **Add the service to Skylite** in Settings > Integrations > Add Integration
+
+4. **Make your changes, test, and commit** as defined in the [Development Workflow](#development-workflow)
+
+#### Adding New Integrations
+
+1. **Create a new folder** in `Skylite-UX/.devcontainer/integrations/`
+
+2. **Create a Docker Compose file** for the new service you are integrating
+
+3. **Add a new folder** in `Skylite-UX/app/integrations/`
+
+4. **Create your integration service file**
+
+5. **Add a new folder** in `Skylite-UX/server/api/integrations`
+
+6. **Create your API endpoint file**
+
+7. **Add a new folder** in `Skylite-UX/server/integrations`
+
+8. **Create your client, types, and index files**
+
+9. **Add your service** in `Skylite-UX/app/integrations/integrationConfig.ts` so it will be picked up when Skylite starts
+
+10. **Spin up your Docker container**
+
+11. **Generate an API key**
+
+12. **Add the service to Skylite** in Settings > Integrations > Add Integration
+
+13. **Test and commit** as defined in the [Development Workflow](#development-workflow)
+
+### Integration Configuration
+
+#### Docker Compose for Integrations
+
+```yaml
+# .devcontainer/integrations/service/service-docker-compose.yml
+version: '3.8'
+
+services:
+  # Comments about the integration
+  # How to create API key, base URL, etc.
+  # Base URL: http://mealie:9000
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:latest 
+    container_name: mealie
+    restart: always
+    ports:
+      - "9925:9000" # External port mapping
+    deploy:
+      resources:
+        limits:
+          memory: 1000M # Memory limit
+    volumes:
+      - mealie-data:/app/data/
+    environment:
+      # Set Backend ENV Variables Here
+      ALLOW_SIGNUP: false
+      PUID: 1000
+      PGID: 1000
+      TZ: America/Anchorage
+    # Make sure the service runs on the same network as the dev container
+    networks:
+      skylite-ux_devcontainer_default:
+
+volumes:
+  mealie-data:
+  
+# Make sure the service runs on the same network as the dev container
+networks:
+  skylite-ux_devcontainer_default:
+    external: true
+```
+
+### Troubleshooting Integrations
+
+#### Common Issues
+
+##### Authentication Errors
+```bash
+# Ensure service is on the same Docker network as dev container
+# Ensure correct base URL
+# Check token expiration
+```
+
+##### Data Sync Issues
+```bash
+# Check network connectivity
+# Verify API endpoints
+# Review error logs
+# Test with minimal data set
+```
 
 ## 🧪 Testing
 
