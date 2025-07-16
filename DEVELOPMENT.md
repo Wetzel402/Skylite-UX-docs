@@ -48,7 +48,7 @@ Skylite-UX/
 │   │   ├── shopping/        # Shopping list components
 │   │   └── todos/           # Todo list components
 │   ├── composables/         # Vue composables
-│   ├── integrations/        # External service integration files
+│   ├── integrations/        # External integration files
 │   ├── lib/                 # Library configurations
 │   ├── pages/               # Application pages (auto-routed)
 │   ├── plugins/             # Nuxt plugins
@@ -66,8 +66,8 @@ Skylite-UX/
 │   │   ├── shopping-lists/  # Shopping list API routes
 │   │   ├── todos/           # Todo API routes
 │   │   └── users/           # User API routes
-│   ├── plugins/             # Server plugins
-│   └── utils/               # Server utility functions
+│   ├── integrations         # Integration service files
+│   └── plugins/             # Server plugins
 ├── eslint.config.mjs        # ESLint configuration
 ├── LICENSE.md               # Project license
 ├── nuxt.config.ts           # Nuxt configuration
@@ -151,7 +151,7 @@ Skylite UX is designed to integrate with various external and self-hosted servic
 
 3. **Add a new folder** in `Skylite-UX/app/integrations/`
 
-4. **Create your integration service file**
+4. **Create your integration file**
 
 5. **Add a new folder** in `Skylite-UX/server/api/integrations`
 
@@ -159,7 +159,7 @@ Skylite UX is designed to integrate with various external and self-hosted servic
 
 7. **Add a new folder** in `Skylite-UX/server/integrations`
 
-8. **Create your client, types, and index files**
+8. **Create your service files**
 
 9. **Add your service** in `Skylite-UX/app/integrations/integrationConfig.ts` so it will be picked up when Skylite starts
 
@@ -213,6 +213,67 @@ networks:
   skylite-ux_devcontainer_default:
     external: true
 ```
+#### Defining Your Integration in integrationConfig.ts
+
+```
+{
+    type: "shopping", // calendar,todo,shopping,meal
+    service: "tandoor", // the name of the service you are integrating 
+    settingsFields: [
+      // fields used for setting up the integration
+      {
+        key: 'apiKey',
+        label: 'API Key',
+        type: 'password' as const,
+        placeholder: 'Scope needs to be "read write"',
+        required: true,
+        description: 'Your Tandoor API key for authentication'
+      },
+      {
+        key: 'baseUrl',
+        label: 'Base URL',
+        type: 'url' as const,
+        placeholder: 'http://your-tandoor-instance:port',
+        required: true,
+        description: 'The base URL of your Tandoor instance'
+      }
+    ],
+    capabilities: ["add_items", "edit_items"], // declare your capabilities 
+    icon: "https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tandoor-recipes.svg", // icon URL from selfh.st/icons
+    files: [
+      // list your integration paths
+      "/integrations/tandoor/tandoorShoppingLists.ts", 
+      "/server/api/integrations/tandoor/[...path].ts",
+      "/server/integrations/tandoor/"
+    ],
+    dialogFields: [
+      // fields used for dialog 
+      {
+        key: 'name',
+        label: 'Item Name',
+        type: 'text' as const,
+        placeholder: 'Milk, Bread, Apples, etc.',
+        required: true,
+        canEdit: true,
+      },
+      {
+        key: 'quantity',
+        label: 'Quantity',
+        type: 'number' as const,
+        min: 0,
+        canEdit: true,
+      },
+      {
+        key: 'unit',
+        label: 'Unit',
+        type: 'text' as const,
+        placeholder: 'Disabled for Tandoor',
+        canEdit: false,
+      },
+    ],
+  },
+```
+
 
 ### Troubleshooting Integrations
 
